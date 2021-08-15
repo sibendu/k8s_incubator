@@ -42,10 +42,9 @@ Update port definition to add:  name: https
 
 ## Sample Output
 
----
 Output of script createCluster.sh:
 
-***
+```
 Your Kubernetes control-plane has initialized successfully!
 
 To start using your cluster, you need to run the following as a regular user:
@@ -66,5 +65,5 @@ Then you can join any number of worker nodes by running the following on each as
 
 kubeadm join 172.31.40.212:6443 --token yugltn.j6nk9lk4j4yhb4z2 \
         --discovery-token-ca-cert-hash sha256:d8ba8d0fc821afb46e07181756c884bf0a8eef2edb937fb5287a8064e1537d78
----
+```
 
