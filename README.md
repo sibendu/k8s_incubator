@@ -32,9 +32,17 @@ Update port definition to add:  name: https
 
 1. After restrating vm, IP changes. So update config file to new IP
 
+For start/stop/describe: 
+aws ec2 start-instances| describe-instances --instance-id <> --region <>
+
+
 2. Cluster tear down: sudo kubeadm reset
 
 3. Unix check PID for a port: sudo lsof -n -i :2379 | grep LIS
+
+4. Kubernetes OpenAPI available at /openapi/v2 e.g. http://locahost:8001/openapi/v2 -> sample output JSON can be seen in /sample/kubernetes-api-oas.json
+For example: curl http://localhost:8001/api/v1/namespaces 
+
 
 ## To Do
  
@@ -63,7 +71,9 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 
 Then you can join any number of worker nodes by running the following on each as root:
 
-kubeadm join 172.31.40.212:6443 --token yugltn.j6nk9lk4j4yhb4z2 \
-        --discovery-token-ca-cert-hash sha256:d8ba8d0fc821afb46e07181756c884bf0a8eef2edb937fb5287a8064e1537d78
+kubeadm join 172.31.40.212:6443 --token ijmu1w.xumaawgncb2sc847 \
+        --discovery-token-ca-cert-hash sha256:27d4e37da9657576111defd08817415d589cbb7db5a7db34bb30113b5027edca
+
+
 ```
 

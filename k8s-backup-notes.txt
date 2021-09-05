@@ -1,0 +1,72 @@
+
+# https://elastisys.com/backup-kubernetes-how-and-why/
+
+# Backup certificates
+sudo cp -r /etc/kubernetes/pki backup/
+
+# Make etcd snapshot
+# Change k8s.gcr.io/etcd:3.5.0-0 ; checking version from pod in kube-system 
+
+sudo docker run --rm -v $(pwd)/backup:/backup \
+    --network host \
+    -v /etc/kubernetes/pki/etcd:/etc/kubernetes/pki/etcd \
+    --env ETCDCTL_API=3 \
+    k8s.gcr.io/etcd:3.5.0-0 \
+    etcdctl --endpoints=https://127.0.0.1:2379 \
+    --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+    --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt \
+    --key=/etc/kubernetes/pki/etcd/healthcheck-client.key \
+    snapshot save /backup/etcd-snapshot-latest.db
+
+# Backup kubeadm-config
+sudo cp /etc/kubeadm/kubeadm-config.yaml backup/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Restore certificates
+sudo mkdir /etc/kubernetes/pki
+sudo cp -r backup/* /etc/kubernetes/pki
+
+# Restore etcd backup
+sudo mkdir -p /var/lib/etcd
+sudo docker run --rm \
+    -v $(pwd)/backup:/backup \
+    -v /var/lib/etcd:/var/lib/etcd \
+    --env ETCDCTL_API=3 \
+    k8s.gcr.io/etcd:3.5.0-0 \
+    etcdctl snapshot restore '/backup/etcd-snapshot-latest.db'
+
+sudo docker run --rm \
+    -v $(pwd)/backup:/backup \
+    -v /var/lib/etcd:/var/lib/etcd \
+    --env ETCDCTL_API=3 \
+    bitnami/etcd \
+    /bin/sh -c "sudo etcdctl snapshot restore '/backup/etcd-snapshot-latest.db'"
+
+
+sudo docker run --rm \
+    -v $(pwd)/backup:/backup \
+    -v /var/lib/etcd:/var/lib/etcd \
+    --env ETCDCTL_API=3 \
+    bitnami/etcd \
+    sh -c "sudo etcdctl snapshot restore '/backup/etcd-snapshot-latest.db' ; sudo ls /default.etcd/member/; sudo mv /default.etcd/member/ /var/lib/etcd/"
+
+
+# Restore kubeadm-config
+sudo mkdir /etc/kubeadm
+sudo cp backup/kubeadm-config.yaml /etc/kubeadm/
+
+# Initialize the master with backup
+sudo kubeadm init --ignore-preflight-errors=DirAvailable--var-lib-etcd \
+    --config /etc/kubeadm/kubeadm-config.yaml
