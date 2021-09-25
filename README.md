@@ -23,7 +23,7 @@ Scripts to spin off a vanilla k8s cluster on a VM. Tested with AWS EC2 Ubuntu VM
 - kubectl proxy --insecure-skip-tls-verify  -> Without insecure-skip-tls-verify flag it will give certificate error, as cert was geneated by kubeadm using private IP
  
 - To access dashboard, svc needs to be updated to add a name for the port: 
-kubectl edit  svc kubernetes-dashboard  -n kubernetes-dashboard
+kubectl edit  svc kubernetes-dashboard  -n kubernetes-dashboard --insecure-skip-tls-verify
 Update port definition to add:  name: https
 
 - Dashboard UI: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:https/proxy/#/login 
